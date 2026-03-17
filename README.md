@@ -55,3 +55,5 @@ O projeto foi gerado completo em código, mas eu não consegui executar um build
 3. gerar o `gradle wrapper` se quiser versionar completo
 4. executar em emulador/dispositivo
 
+
+
