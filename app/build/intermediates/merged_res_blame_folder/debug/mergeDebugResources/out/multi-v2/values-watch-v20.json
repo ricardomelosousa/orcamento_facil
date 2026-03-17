@@ -1,0 +1,20 @@
+{
+    "logs": [
+        {
+            "outputFile": "com.orcamento.orcamentofacil.app-mergeDebugResources-70:/values-watch-v20/values-watch-v20.xml",
+            "map": [
+                {
+                    "source": "C:\\Users\\ricardo.mesousa\\.gradle\\caches\\9.0.0\\transforms\\ddfda223b0ba211b57121a5a6c567c4e\\transformed\\appcompat-1.6.1\\res\\values-watch-v20\\values-watch-v20.xml",
+                    "from": {
+                        "startLines": "2,5,8",
+                        "startColumns": "4,4,4",
+                        "startOffsets": "55,214,385",
+                        "endLines": "4,7,10",
+                        "endColumns": "12,12,12",
+                        "endOffsets": "209,380,553"
+                    }
+                }
+            ]
+        }
+    ]
+}
