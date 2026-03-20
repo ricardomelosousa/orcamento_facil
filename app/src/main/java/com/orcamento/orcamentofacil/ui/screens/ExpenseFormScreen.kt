@@ -7,11 +7,15 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.Button
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -35,7 +39,13 @@ fun ExpenseFormScreen(viewModel: ExpenseFormViewModel, onBack: () -> Unit) {
     var expandedTemplate by remember { mutableStateOf(false) }
     var expandedType by remember { mutableStateOf(false) }
 
-    Scaffold(topBar = { TopAppBar(title = { Text("Lançar gasto") }) }) { padding ->
+    Scaffold(topBar = {
+        TopAppBar(title = { Text("Lançar gasto") }, navigationIcon = {
+            IconButton(onClick = onBack) {
+                Icon(imageVector = Icons.Filled.ArrowBack, contentDescription = "Voltar")
+            }
+        })
+    }) { padding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -44,16 +54,22 @@ fun ExpenseFormScreen(viewModel: ExpenseFormViewModel, onBack: () -> Unit) {
                 .verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            ExposedDropdownMenuBox(expanded = expandedTemplate, onExpandedChange = { expandedTemplate = it }) {
+            ExposedDropdownMenuBox(
+                expanded = expandedTemplate,
+                onExpandedChange = { expandedTemplate = it }) {
                 OutlinedTextField(
                     value = templates.firstOrNull { it.template.id == state.selectedTemplateId }?.template?.name.orEmpty(),
                     onValueChange = {},
                     readOnly = true,
                     label = { Text("Período base") },
                     trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expandedTemplate) },
-                    modifier = Modifier.menuAnchor().fillMaxWidth()
+                    modifier = Modifier
+                        .menuAnchor()
+                        .fillMaxWidth()
                 )
-                ExposedDropdownMenu(expanded = expandedTemplate, onDismissRequest = { expandedTemplate = false }) {
+                ExposedDropdownMenu(
+                    expanded = expandedTemplate,
+                    onDismissRequest = { expandedTemplate = false }) {
                     templates.forEach {
                         DropdownMenuItem(
                             text = { Text(it.template.name) },
@@ -66,16 +82,22 @@ fun ExpenseFormScreen(viewModel: ExpenseFormViewModel, onBack: () -> Unit) {
                 }
             }
 
-            ExposedDropdownMenuBox(expanded = expandedType, onExpandedChange = { expandedType = it }) {
+            ExposedDropdownMenuBox(
+                expanded = expandedType,
+                onExpandedChange = { expandedType = it }) {
                 OutlinedTextField(
                     value = types.firstOrNull { it.id == state.selectedTypeId }?.name.orEmpty(),
                     onValueChange = {},
                     readOnly = true,
                     label = { Text("Tipo de gasto") },
                     trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expandedType) },
-                    modifier = Modifier.menuAnchor().fillMaxWidth()
+                    modifier = Modifier
+                        .menuAnchor()
+                        .fillMaxWidth()
                 )
-                ExposedDropdownMenu(expanded = expandedType, onDismissRequest = { expandedType = false }) {
+                ExposedDropdownMenu(
+                    expanded = expandedType,
+                    onDismissRequest = { expandedType = false }) {
                     types.forEach {
                         DropdownMenuItem(
                             text = { Text(it.name) },
@@ -88,11 +110,29 @@ fun ExpenseFormScreen(viewModel: ExpenseFormViewModel, onBack: () -> Unit) {
                 }
             }
 
-            OutlinedTextField(state.amount, viewModel::updateAmount, label = { Text("Valor") }, modifier = Modifier.fillMaxWidth())
-            OutlinedTextField(state.expenseDate, viewModel::updateDate, label = { Text("Data (yyyy-MM-dd)") }, modifier = Modifier.fillMaxWidth())
-            OutlinedTextField(state.description, viewModel::updateDescription, label = { Text("Descrição") }, modifier = Modifier.fillMaxWidth())
+            OutlinedTextField(
+                state.amount,
+                viewModel::updateAmount,
+                label = { Text("Valor") },
+                modifier = Modifier.fillMaxWidth()
+            )
+            OutlinedTextField(
+                state.expenseDate,
+                viewModel::updateDate,
+                label = { Text("Data (yyyy-MM-dd)") },
+                modifier = Modifier.fillMaxWidth()
+            )
+            OutlinedTextField(
+                state.description,
+                viewModel::updateDescription,
+                label = { Text("Descrição") },
+                modifier = Modifier.fillMaxWidth()
+            )
             state.error?.let { Text(it) }
-            Button(onClick = { viewModel.save(onSuccess = onBack) }, modifier = Modifier.fillMaxWidth()) {
+            Button(
+                onClick = { viewModel.save(onSuccess = onBack) },
+                modifier = Modifier.fillMaxWidth()
+            ) {
                 Text("Salvar lançamento")
             }
         }

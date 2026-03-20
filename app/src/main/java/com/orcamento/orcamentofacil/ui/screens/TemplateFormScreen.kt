@@ -7,8 +7,12 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Switch
@@ -26,7 +30,15 @@ import com.orcamento.orcamentofacil.ui.viewmodel.TemplateFormViewModel
 fun TemplateFormScreen(viewModel: TemplateFormViewModel, onBack: () -> Unit) {
     val state by viewModel.state.collectAsStateWithLifecycle()
 
-    Scaffold(topBar = { TopAppBar(title = { Text("Novo período") }) }) { padding ->
+    Scaffold(topBar = {
+        TopAppBar(
+            title = { Text("Novo período") },
+            navigationIcon = {
+                IconButton(onClick = onBack) {
+                    Icon(imageVector = Icons.Default.ArrowBack, contentDescription = "Voltar")
+                }
+            })
+    }) { padding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -35,10 +47,30 @@ fun TemplateFormScreen(viewModel: TemplateFormViewModel, onBack: () -> Unit) {
                 .verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            OutlinedTextField(state.name, viewModel::updateName, label = { Text("Nome do período") }, modifier = Modifier.fillMaxWidth())
-            OutlinedTextField(state.startDay, viewModel::updateStartDay, label = { Text("Dia inicial") }, modifier = Modifier.fillMaxWidth())
-            OutlinedTextField(state.endDay, viewModel::updateEndDay, label = { Text("Dia final") }, modifier = Modifier.fillMaxWidth())
-            OutlinedTextField(state.totalLimit, viewModel::updateLimit, label = { Text("Limite total") }, modifier = Modifier.fillMaxWidth())
+            OutlinedTextField(
+                state.name,
+                viewModel::updateName,
+                label = { Text("Nome do período") },
+                modifier = Modifier.fillMaxWidth()
+            )
+            OutlinedTextField(
+                state.startDay,
+                viewModel::updateStartDay,
+                label = { Text("Dia inicial") },
+                modifier = Modifier.fillMaxWidth()
+            )
+            OutlinedTextField(
+                state.endDay,
+                viewModel::updateEndDay,
+                label = { Text("Dia final") },
+                modifier = Modifier.fillMaxWidth()
+            )
+            OutlinedTextField(
+                state.totalLimit,
+                viewModel::updateLimit,
+                label = { Text("Limite total") },
+                modifier = Modifier.fillMaxWidth()
+            )
             OutlinedTextField(
                 state.typesText,
                 viewModel::updateTypesFromText,
