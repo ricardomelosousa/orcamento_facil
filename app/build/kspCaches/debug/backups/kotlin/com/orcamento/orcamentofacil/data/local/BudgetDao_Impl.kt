@@ -628,6 +628,114 @@ public class BudgetDao_Impl(
     }
   }
 
+  public override suspend fun findCurrentPeriod(today: String): List<BudgetPeriodEntity>? {
+    val _sql: String = "SELECT * FROM budget_periods WHERE startDate <= ? AND endDate >= ? "
+    return performSuspending(__db, true, false) { _connection ->
+      val _stmt: SQLiteStatement = _connection.prepare(_sql)
+      try {
+        var _argIndex: Int = 1
+        _stmt.bindText(_argIndex, today)
+        _argIndex = 2
+        _stmt.bindText(_argIndex, today)
+        val _columnIndexOfId: Int = getColumnIndexOrThrow(_stmt, "id")
+        val _columnIndexOfTemplateId: Int = getColumnIndexOrThrow(_stmt, "templateId")
+        val _columnIndexOfReferenceYear: Int = getColumnIndexOrThrow(_stmt, "referenceYear")
+        val _columnIndexOfReferenceMonth: Int = getColumnIndexOrThrow(_stmt, "referenceMonth")
+        val _columnIndexOfLabel: Int = getColumnIndexOrThrow(_stmt, "label")
+        val _columnIndexOfStartDate: Int = getColumnIndexOrThrow(_stmt, "startDate")
+        val _columnIndexOfEndDate: Int = getColumnIndexOrThrow(_stmt, "endDate")
+        val _columnIndexOfTotalLimit: Int = getColumnIndexOrThrow(_stmt, "totalLimit")
+        val _result: MutableList<BudgetPeriodEntity> = mutableListOf()
+        while (_stmt.step()) {
+          val _item: BudgetPeriodEntity
+          val _tmpId: Long
+          _tmpId = _stmt.getLong(_columnIndexOfId)
+          val _tmpTemplateId: Long
+          _tmpTemplateId = _stmt.getLong(_columnIndexOfTemplateId)
+          val _tmpReferenceYear: Int
+          _tmpReferenceYear = _stmt.getLong(_columnIndexOfReferenceYear).toInt()
+          val _tmpReferenceMonth: Int
+          _tmpReferenceMonth = _stmt.getLong(_columnIndexOfReferenceMonth).toInt()
+          val _tmpLabel: String
+          _tmpLabel = _stmt.getText(_columnIndexOfLabel)
+          val _tmpStartDate: String
+          _tmpStartDate = _stmt.getText(_columnIndexOfStartDate)
+          val _tmpEndDate: String
+          _tmpEndDate = _stmt.getText(_columnIndexOfEndDate)
+          val _tmpTotalLimit: Double
+          _tmpTotalLimit = _stmt.getDouble(_columnIndexOfTotalLimit)
+          _item =
+              BudgetPeriodEntity(_tmpId,_tmpTemplateId,_tmpReferenceYear,_tmpReferenceMonth,_tmpLabel,_tmpStartDate,_tmpEndDate,_tmpTotalLimit)
+          _result.add(_item)
+        }
+        _result
+      } finally {
+        _stmt.close()
+      }
+    }
+  }
+
+  public override suspend fun getExpensesByPeriodWork(periodId: Long): List<ExpenseEntryEntity> {
+    val _sql: String = "SELECT * FROM expense_entries  WHERE periodId = ? "
+    return performSuspending(__db, true, false) { _connection ->
+      val _stmt: SQLiteStatement = _connection.prepare(_sql)
+      try {
+        var _argIndex: Int = 1
+        _stmt.bindLong(_argIndex, periodId)
+        val _columnIndexOfId: Int = getColumnIndexOrThrow(_stmt, "id")
+        val _columnIndexOfPeriodId: Int = getColumnIndexOrThrow(_stmt, "periodId")
+        val _columnIndexOfTypeId: Int = getColumnIndexOrThrow(_stmt, "typeId")
+        val _columnIndexOfAmount: Int = getColumnIndexOrThrow(_stmt, "amount")
+        val _columnIndexOfExpenseDate: Int = getColumnIndexOrThrow(_stmt, "expenseDate")
+        val _columnIndexOfDescription: Int = getColumnIndexOrThrow(_stmt, "description")
+        val _result: MutableList<ExpenseEntryEntity> = mutableListOf()
+        while (_stmt.step()) {
+          val _item: ExpenseEntryEntity
+          val _tmpId: Long
+          _tmpId = _stmt.getLong(_columnIndexOfId)
+          val _tmpPeriodId: Long
+          _tmpPeriodId = _stmt.getLong(_columnIndexOfPeriodId)
+          val _tmpTypeId: Long
+          _tmpTypeId = _stmt.getLong(_columnIndexOfTypeId)
+          val _tmpAmount: Double
+          _tmpAmount = _stmt.getDouble(_columnIndexOfAmount)
+          val _tmpExpenseDate: String
+          _tmpExpenseDate = _stmt.getText(_columnIndexOfExpenseDate)
+          val _tmpDescription: String
+          _tmpDescription = _stmt.getText(_columnIndexOfDescription)
+          _item =
+              ExpenseEntryEntity(_tmpId,_tmpPeriodId,_tmpTypeId,_tmpAmount,_tmpExpenseDate,_tmpDescription)
+          _result.add(_item)
+        }
+        _result
+      } finally {
+        _stmt.close()
+      }
+    }
+  }
+
+  public override suspend fun getSpentNow(periodId: Long): Double {
+    val _sql: String = "SELECT COALESCE(SUM(amount), 0) FROM expense_entries WHERE periodId = ?"
+    return performSuspending(__db, true, false) { _connection ->
+      val _stmt: SQLiteStatement = _connection.prepare(_sql)
+      try {
+        var _argIndex: Int = 1
+        _stmt.bindLong(_argIndex, periodId)
+        val _result: Double
+        if (_stmt.step()) {
+          val _tmp: Double
+          _tmp = _stmt.getDouble(0)
+          _result = _tmp
+        } else {
+          _result = 0.0
+        }
+        _result
+      } finally {
+        _stmt.close()
+      }
+    }
+  }
+
   public override suspend fun deleteTypesByTemplate(templateId: Long) {
     val _sql: String = "DELETE FROM expense_types WHERE templateId = ?"
     return performSuspending(__db, false, true) { _connection ->

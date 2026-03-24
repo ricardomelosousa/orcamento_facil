@@ -3,6 +3,7 @@ package com.orcamento.orcamentofacil
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
@@ -24,8 +25,14 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.room.util.TableInfo
+import androidx.work.ExistingPeriodicWorkPolicy
+import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.PeriodicWorkRequestBuilder
+import androidx.work.WorkManager
 import com.orcamento.orcamentofacil.notifications.NotificationHelper
 import com.orcamento.orcamentofacil.ui.navigation.AppNavHost
+import com.orcamento.orcamentofacil.workers.DailyBudgetWorker
+import java.util.concurrent.TimeUnit
 import java.util.jar.Manifest
 
 class MainActivity : ComponentActivity() {
@@ -39,6 +46,22 @@ class MainActivity : ComponentActivity() {
         NotificationHelper.createChannel(this)
         requestNotificationPermissionIfNeeded()
 
+        //Para debug remova o !
+        if (!BuildConfig.DEBUG) {
+            val request2 = OneTimeWorkRequestBuilder<DailyBudgetWorker>().build()
+            WorkManager.getInstance(this).enqueue(request2)
+            Log.d("WORK_DEBUG", "Rodando worker IMEDIATO (DEBUG)")
+        } else {
+            val request = PeriodicWorkRequestBuilder<DailyBudgetWorker>(
+                1, TimeUnit.DAYS
+            ).build()
+
+            WorkManager.getInstance(this).enqueueUniquePeriodicWork(
+                "daily_budget_notification",
+                ExistingPeriodicWorkPolicy.UPDATE,
+                request
+            )
+        }
         setContent {
             Surface(color = MaterialTheme.colorScheme.background) {
                 AppNavHost(appContainer = (application as OrcamentoFacilApp).container)
@@ -46,6 +69,7 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
+
     private fun requestNotificationPermissionIfNeeded() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             if (ContextCompat.checkSelfPermission(
@@ -69,4 +93,8 @@ class MainActivity : ComponentActivity() {
 //    }
 
 
+}
+
+object BuildConfig {
+    const val DEBUG = true
 }
