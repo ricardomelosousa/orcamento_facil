@@ -1,5 +1,6 @@
 package com.orcamento.orcamentofacil.data.local
 
+import android.content.Context
 import androidx.room.Database
 import androidx.room.RoomDatabase
 
@@ -11,7 +12,7 @@ import androidx.room.RoomDatabase
         ExpenseEntryEntity::class
     ],
     version = 1,
-    exportSchema = false
+    exportSchema = true
 )
 abstract class AppDatabase : RoomDatabase() {
     abstract fun budgetDao(): BudgetDao

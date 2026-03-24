@@ -1,5 +1,9 @@
 R_DEF: Internal format may change without notice
 local
+color ic_orca_background
 drawable orca_facil
+mipmap ic_orca
+mipmap ic_orca_foreground
+mipmap ic_orca_round
 string app_name
 style Theme.OrcamentoFacil

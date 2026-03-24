@@ -1,8 +1,11 @@
 package com.orcamento.orcamentofacil
 
+import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -19,12 +22,23 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat
 import androidx.room.util.TableInfo
+import com.orcamento.orcamentofacil.notifications.NotificationHelper
 import com.orcamento.orcamentofacil.ui.navigation.AppNavHost
+import java.util.jar.Manifest
 
 class MainActivity : ComponentActivity() {
+
+    private val notificationPermissionLauncher =
+        registerForActivityResult(ActivityResultContracts.RequestPermission()) { }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        NotificationHelper.createChannel(this)
+        requestNotificationPermissionIfNeeded()
+
         setContent {
             Surface(color = MaterialTheme.colorScheme.background) {
                 AppNavHost(appContainer = (application as OrcamentoFacilApp).container)
@@ -32,7 +46,17 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
-
+    private fun requestNotificationPermissionIfNeeded() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (ContextCompat.checkSelfPermission(
+                    this,
+                    android.Manifest.permission.POST_NOTIFICATIONS
+                ) != PackageManager.PERMISSION_GRANTED
+            ) {
+                notificationPermissionLauncher.launch(android.Manifest.permission.POST_NOTIFICATIONS)
+            }
+        }
+    }
 //    @Preview(showBackground = true)
 //    @Composable
 //    fun Teste(){

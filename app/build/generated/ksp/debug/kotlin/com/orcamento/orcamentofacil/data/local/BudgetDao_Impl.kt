@@ -40,10 +40,14 @@ public class BudgetDao_Impl(
 
   private val __insertAdapterOfBudgetPeriodEntity: EntityInsertAdapter<BudgetPeriodEntity>
 
+  private val __insertAdapterOfBudgetPeriodEntity_1: EntityInsertAdapter<BudgetPeriodEntity>
+
   private val __insertAdapterOfExpenseEntryEntity: EntityInsertAdapter<ExpenseEntryEntity>
 
   private val __updateAdapterOfBudgetTemplateEntity:
       EntityDeleteOrUpdateAdapter<BudgetTemplateEntity>
+
+  private val __updateAdapterOfBudgetPeriodEntity: EntityDeleteOrUpdateAdapter<BudgetPeriodEntity>
   init {
     this.__db = __db
     this.__insertAdapterOfBudgetTemplateEntity = object :
@@ -88,6 +92,22 @@ public class BudgetDao_Impl(
         statement.bindDouble(8, entity.totalLimit)
       }
     }
+    this.__insertAdapterOfBudgetPeriodEntity_1 = object : EntityInsertAdapter<BudgetPeriodEntity>()
+        {
+      protected override fun createQuery(): String =
+          "INSERT OR IGNORE INTO `budget_periods` (`id`,`templateId`,`referenceYear`,`referenceMonth`,`label`,`startDate`,`endDate`,`totalLimit`) VALUES (nullif(?, 0),?,?,?,?,?,?,?)"
+
+      protected override fun bind(statement: SQLiteStatement, entity: BudgetPeriodEntity) {
+        statement.bindLong(1, entity.id)
+        statement.bindLong(2, entity.templateId)
+        statement.bindLong(3, entity.referenceYear.toLong())
+        statement.bindLong(4, entity.referenceMonth.toLong())
+        statement.bindText(5, entity.label)
+        statement.bindText(6, entity.startDate)
+        statement.bindText(7, entity.endDate)
+        statement.bindDouble(8, entity.totalLimit)
+      }
+    }
     this.__insertAdapterOfExpenseEntryEntity = object : EntityInsertAdapter<ExpenseEntryEntity>() {
       protected override fun createQuery(): String =
           "INSERT OR ABORT INTO `expense_entries` (`id`,`periodId`,`typeId`,`amount`,`expenseDate`,`description`) VALUES (nullif(?, 0),?,?,?,?,?)"
@@ -119,6 +139,23 @@ public class BudgetDao_Impl(
         statement.bindLong(8, entity.id)
       }
     }
+    this.__updateAdapterOfBudgetPeriodEntity = object :
+        EntityDeleteOrUpdateAdapter<BudgetPeriodEntity>() {
+      protected override fun createQuery(): String =
+          "UPDATE OR ABORT `budget_periods` SET `id` = ?,`templateId` = ?,`referenceYear` = ?,`referenceMonth` = ?,`label` = ?,`startDate` = ?,`endDate` = ?,`totalLimit` = ? WHERE `id` = ?"
+
+      protected override fun bind(statement: SQLiteStatement, entity: BudgetPeriodEntity) {
+        statement.bindLong(1, entity.id)
+        statement.bindLong(2, entity.templateId)
+        statement.bindLong(3, entity.referenceYear.toLong())
+        statement.bindLong(4, entity.referenceMonth.toLong())
+        statement.bindText(5, entity.label)
+        statement.bindText(6, entity.startDate)
+        statement.bindText(7, entity.endDate)
+        statement.bindDouble(8, entity.totalLimit)
+        statement.bindLong(9, entity.id)
+      }
+    }
   }
 
   public override suspend fun insertTemplate(template: BudgetTemplateEntity): Long =
@@ -139,6 +176,12 @@ public class BudgetDao_Impl(
     _result
   }
 
+  public override suspend fun insertPeriod(entity: BudgetPeriodEntity): Long =
+      performSuspending(__db, false, true) { _connection ->
+    val _result: Long = __insertAdapterOfBudgetPeriodEntity_1.insertAndReturnId(_connection, entity)
+    _result
+  }
+
   public override suspend fun insertExpense(entry: ExpenseEntryEntity): Long =
       performSuspending(__db, false, true) { _connection ->
     val _result: Long = __insertAdapterOfExpenseEntryEntity.insertAndReturnId(_connection, entry)
@@ -148,6 +191,11 @@ public class BudgetDao_Impl(
   public override suspend fun updateTemplate(template: BudgetTemplateEntity): Unit =
       performSuspending(__db, false, true) { _connection ->
     __updateAdapterOfBudgetTemplateEntity.handle(_connection, template)
+  }
+
+  public override suspend fun updatePeriod(entity: BudgetPeriodEntity): Unit =
+      performSuspending(__db, false, true) { _connection ->
+    __updateAdapterOfBudgetPeriodEntity.handle(_connection, entity)
   }
 
   public override fun observeTemplates(): Flow<List<TemplateWithTypes>> {

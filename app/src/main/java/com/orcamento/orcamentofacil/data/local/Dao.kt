@@ -33,6 +33,12 @@ interface BudgetDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertOrReplacePeriod(period: BudgetPeriodEntity): Long
 
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    suspend fun insertPeriod(entity: BudgetPeriodEntity): Long
+
+    @Update
+    suspend fun updatePeriod(entity: BudgetPeriodEntity)
+
     @Transaction
     @Query("SELECT * FROM budget_periods ORDER BY startDate DESC")
     fun observePeriods(): Flow<List<BudgetPeriodEntity>>
