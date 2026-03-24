@@ -10,11 +10,13 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.orcamento.orcamentofacil.data.local.AppContainer
 import com.orcamento.orcamentofacil.ui.screens.ExpenseFormScreen
+import com.orcamento.orcamentofacil.ui.screens.HistoryScreen
 import com.orcamento.orcamentofacil.ui.screens.HomeScreen
 import com.orcamento.orcamentofacil.ui.screens.PeriodDetailScreen
 import com.orcamento.orcamentofacil.ui.screens.TemplateFormScreen
 import com.orcamento.orcamentofacil.ui.viewmodel.AppViewModelFactory
 import com.orcamento.orcamentofacil.ui.viewmodel.ExpenseFormViewModel
+import com.orcamento.orcamentofacil.ui.viewmodel.HistoryViewModel
 import com.orcamento.orcamentofacil.ui.viewmodel.HomeViewModel
 import com.orcamento.orcamentofacil.ui.viewmodel.PeriodDetailViewModel
 import com.orcamento.orcamentofacil.ui.viewmodel.TemplateFormViewModel
@@ -24,6 +26,9 @@ object Routes {
     const val TEMPLATE_FORM = "template_form"
     const val EXPENSE_FORM = "expense_form"
     const val PERIOD_DETAIL = "period_detail"
+
+    const val HISTORY_FORM = "history_form"
+
 }
 
 @Composable
@@ -38,7 +43,11 @@ fun AppNavHost(appContainer: AppContainer) {
                 onAddTemplate = { navController.navigate(Routes.TEMPLATE_FORM) },
                 onEditTemplate = { navController.navigate("${Routes.TEMPLATE_FORM}?templateId=$it") },
                 onAddExpense = { navController.navigate(Routes.EXPENSE_FORM) },
-                onOpenPeriod = { navController.navigate("${Routes.PERIOD_DETAIL}/$it") }
+                onOpenPeriod = { navController.navigate("${Routes.PERIOD_DETAIL}/$it") },
+                onNavigateToPeriods = { navController.navigate(Routes.TEMPLATE_FORM)  },
+                onNavigateToHistory = { navController.navigate(Routes.HISTORY_FORM) },
+                onNavigateToExpanse = {navController.navigate(Routes.EXPENSE_FORM)},
+                onNavigateToSettings = { navController.navigate(Routes.EXPENSE_FORM)  }
             )
         }
         composable(
@@ -55,6 +64,18 @@ fun AppNavHost(appContainer: AppContainer) {
         composable(Routes.EXPENSE_FORM) {
             val vm: ExpenseFormViewModel = viewModel(factory = AppViewModelFactory(appContainer.repository))
             ExpenseFormScreen(viewModel = vm, onBack = { navController.popBackStack() })
+        }
+        composable(Routes.HISTORY_FORM) {
+            val vm: HistoryViewModel = viewModel(factory = AppViewModelFactory(appContainer.repository))
+            HistoryScreen( viewModel = vm,
+                onAddTemplate = { navController.navigate(Routes.TEMPLATE_FORM) },
+                onEditTemplate = { navController.navigate("${Routes.TEMPLATE_FORM}?templateId=$it") },
+                onAddExpense = { navController.navigate(Routes.EXPENSE_FORM) },
+                onOpenPeriod = { navController.navigate("${Routes.PERIOD_DETAIL}/$it") },
+                onBack = { navController.popBackStack() }
+            )
+            //val vm: ExpenseFormViewModel = viewModel(factory = AppViewModelFactory(appContainer.repository))
+            //ExpenseFormScreen(viewModel = vm, onBack = { navController.popBackStack() })
         }
         composable(
             route = "${Routes.PERIOD_DETAIL}/{periodId}",

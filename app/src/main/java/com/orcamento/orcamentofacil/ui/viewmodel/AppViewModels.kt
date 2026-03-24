@@ -1,20 +1,74 @@
 package com.orcamento.orcamentofacil.ui.viewmodel
 
+import android.util.Log
+import androidx.compose.runtime.getValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.orcamento.orcamentofacil.domain.BudgetRepository
 import com.orcamento.orcamentofacil.domain.BudgetTemplateInput
 import com.orcamento.orcamentofacil.domain.ExpenseInput
+import com.orcamento.orcamentofacil.notifications.ExpenseUiEvent
+
 import com.orcamento.orcamentofacil.util.DateUtils
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
+
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import java.time.LocalDate
+
+import java.time.format.DateTimeFormatter
+import kotlin.collections.filter
+
+private val formatter = DateTimeFormatter.ISO_LOCAL_DATE
 
 class HomeViewModel(private val repository: BudgetRepository) : ViewModel() {
+    val periods = repository.observePeriodSummaries()
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
+
+    val periodsFilter = periods
+        .map { list ->
+            val today = LocalDate.now()
+
+            list.filter { period ->
+                val start = runCatching {
+                    LocalDate.parse(period.startDate, formatter)
+                }.getOrNull()
+
+                val end = runCatching {
+                    LocalDate.parse(period.endDate, formatter)
+                }.getOrNull()
+
+                period.spent > 0 &&
+                        start != null &&
+                        end != null &&
+                        today in start..end
+            }
+        }
+        .stateIn(
+            viewModelScope,
+            SharingStarted.WhileSubscribed(5_000),
+            emptyList()
+        )
+
+    // it.spent > 0 && (now() >= LocalDate.parse(it.startDate, formatter) &&  now() <= LocalDate.parse(it.endDate, formatter) ) }
+    val templates = repository.observeTemplates()
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
+
+    init {
+        viewModelScope.launch { repository.bootstrap() }
+    }
+
+
+}
+
+class HistoryViewModel(private val repository: BudgetRepository) : ViewModel() {
     val periods = repository.observePeriodSummaries()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
 
@@ -25,6 +79,7 @@ class HomeViewModel(private val repository: BudgetRepository) : ViewModel() {
         viewModelScope.launch { repository.bootstrap() }
     }
 }
+
 
 class TemplateFormViewModel(private val repository: BudgetRepository) : ViewModel() {
     private val _state = MutableStateFlow(TemplateFormState())
@@ -65,8 +120,12 @@ class TemplateFormViewModel(private val repository: BudgetRepository) : ViewMode
 }
 
 class ExpenseFormViewModel(private val repository: BudgetRepository) : ViewModel() {
+
+    private val _events = MutableSharedFlow<ExpenseUiEvent>()
+    val events = _events.asSharedFlow()
     private val _selectedTemplateId = MutableStateFlow<Long?>(null)
-    private val _state = MutableStateFlow(ExpenseFormState(expenseDate = DateUtils.today().toString()))
+    private val _state =
+        MutableStateFlow(ExpenseFormState(expenseDate = DateUtils.today().toString()))
     val state = _state.asStateFlow()
 
     val templates = repository.observeTemplates()
@@ -86,6 +145,7 @@ class ExpenseFormViewModel(private val repository: BudgetRepository) : ViewModel
     fun updateDate(value: String) = _state.update { it.copy(expenseDate = value) }
     fun updateDescription(value: String) = _state.update { it.copy(description = value) }
 
+
     fun save(onSuccess: () -> Unit) {
         viewModelScope.launch {
             val current = state.value
@@ -104,8 +164,24 @@ class ExpenseFormViewModel(private val repository: BudgetRepository) : ViewModel
                 )
             )
             onSuccess()
+
+            val matching = repository.getExpensesPeriod(current.expenseDate, typeId)
+
+            val spent = repository.getExpansePeriodSpent(matching.id)
+            val spentValue = spent.toString().toDoubleOrNull() ?: 0.0
+            val remaining = matching.totalLimit - spentValue
+            try {
+                _events.emit(ExpenseUiEvent.ExpenseSaved(remaining))
+
+            } catch (e: Exception) {
+                Log.e("AppViewModels", "Erro ao emitir evento", e)
+            }
         }
+
+
     }
+
+
 }
 
 class PeriodDetailViewModel(repository: BudgetRepository, periodId: Long) : ViewModel() {
@@ -158,9 +234,20 @@ class AppViewModelFactory(
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         return when {
             modelClass.isAssignableFrom(HomeViewModel::class.java) -> HomeViewModel(repository) as T
-            modelClass.isAssignableFrom(TemplateFormViewModel::class.java) -> TemplateFormViewModel(repository) as T
-            modelClass.isAssignableFrom(ExpenseFormViewModel::class.java) -> ExpenseFormViewModel(repository) as T
-            modelClass.isAssignableFrom(PeriodDetailViewModel::class.java) && periodId != null -> PeriodDetailViewModel(repository, periodId) as T
+            modelClass.isAssignableFrom(HistoryViewModel::class.java) -> HistoryViewModel(repository) as T
+            modelClass.isAssignableFrom(TemplateFormViewModel::class.java) -> TemplateFormViewModel(
+                repository
+            ) as T
+
+            modelClass.isAssignableFrom(ExpenseFormViewModel::class.java) -> ExpenseFormViewModel(
+                repository
+            ) as T
+
+            modelClass.isAssignableFrom(PeriodDetailViewModel::class.java) && periodId != null -> PeriodDetailViewModel(
+                repository,
+                periodId
+            ) as T
+
             else -> error("ViewModel não suportada")
         }
     }
@@ -169,3 +256,6 @@ class AppViewModelFactory(
 private inline fun <T> MutableStateFlow<T>.update(block: (T) -> T) {
     value = block(value)
 }
+
+
+

@@ -85,5 +85,5 @@ dependencies {
 
     // Suporte ao Compose Material 3
     implementation("androidx.compose.material3:material3:1.2.1")
-
+    implementation("androidx.work:work-runtime-ktx:2.9.0")
 }

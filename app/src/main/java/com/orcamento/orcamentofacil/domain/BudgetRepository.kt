@@ -37,6 +37,10 @@ class BudgetRepository(private val dao: BudgetDao) {
 
     fun observeTemplates() = dao.observeTemplates()
 
+     suspend fun getExpansePeriodSpent(periodId: Long): Double {
+         val spent = dao.observePeriodSpent(periodId).first()
+        return spent
+    }
     fun observePeriodDetails(periodId: Long) = dao.observePeriodDetails(periodId)
 
     suspend fun getTemplateById(templateId: Long) = dao.getTemplate(templateId)
@@ -100,6 +104,16 @@ class BudgetRepository(private val dao: BudgetDao) {
         )
     }
 
+    suspend fun getExpensesPeriod(expenseDate: String, typeId: Long):  BudgetPeriodEntity {
+
+        val type = dao.getExpenseTypeById(typeId)
+        val periods = dao.getPeriodsContainingDate(expenseDate)
+        val matching = periods.firstOrNull { it.templateId == type?.templateId }
+            ?: ensurePeriodForDate(type?.templateId ?: 0, DateUtils.parse(expenseDate))
+
+        return matching
+    }
+
     private suspend fun ensurePeriodsGenerated(templateId: Long? = null) {
         val templates = dao.observeTemplates().first()
             .filter { templateId == null || it.template.id == templateId }
@@ -150,8 +164,18 @@ class BudgetRepository(private val dao: BudgetDao) {
             endDate = DateUtils.format(end),
             totalLimit = template.totalLimit
         )
-        val id = dao.insertOrReplacePeriod(entity)
-        return entity.copy(id = if (entity.id == 0L) id else entity.id)
+        val existing = dao.findPeriodByReference(template.id, year, month)
+
+        return if (existing == null) {
+            val newId = dao.insertPeriod(entity.copy(id = 0))
+            entity.copy(id = newId)
+        } else {
+            val updated = entity.copy(id = existing.id)
+            dao.updatePeriod(updated)
+            updated
+        }
+//        val id = dao.insertOrReplacePeriod(entity)
+//        return entity.copy(id = if (entity.id == 0L) id else entity.id)
     }
 
     fun observeTypesForTemplate(templateId: Long): Flow<List<ExpenseTypeEntity>> {

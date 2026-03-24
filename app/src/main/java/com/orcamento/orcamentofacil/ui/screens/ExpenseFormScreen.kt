@@ -21,13 +21,17 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.orcamento.orcamentofacil.notifications.BudgetNotifier
+import com.orcamento.orcamentofacil.notifications.ExpenseUiEvent
 import com.orcamento.orcamentofacil.ui.viewmodel.ExpenseFormViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -38,7 +42,23 @@ fun ExpenseFormScreen(viewModel: ExpenseFormViewModel, onBack: () -> Unit) {
     val types by viewModel.availableTypes.collectAsStateWithLifecycle()
     var expandedTemplate by remember { mutableStateOf(false) }
     var expandedType by remember { mutableStateOf(false) }
+    val context = LocalContext.current
+    val brl = remember { java.text.NumberFormat.getCurrencyInstance(java.util.Locale("pt", "BR")) }
 
+    LaunchedEffect(Unit) {
+        viewModel.events.collect { event ->
+            when (event) {
+                is ExpenseUiEvent.ExpenseSaved -> {
+                    BudgetNotifier.showNotification(
+                        context = context,
+                        id = 1001,
+                        title = "Gasto lançado com sucesso",
+                        message = "Valor restante no período: ${brl.format(event.remaining)}"
+                    )
+                }
+            }
+        }
+    }
     Scaffold(topBar = {
         TopAppBar(title = { Text("Lançar gasto") }, navigationIcon = {
             IconButton(onClick = onBack) {
