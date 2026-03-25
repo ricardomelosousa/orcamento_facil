@@ -174,8 +174,7 @@ class BudgetRepository(private val dao: BudgetDao) {
             dao.updatePeriod(updated)
             updated
         }
-//        val id = dao.insertOrReplacePeriod(entity)
-//        return entity.copy(id = if (entity.id == 0L) id else entity.id)
+
     }
 
     fun observeTypesForTemplate(templateId: Long): Flow<List<ExpenseTypeEntity>> {
