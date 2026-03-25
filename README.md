@@ -57,4 +57,7 @@ O projeto foi gerado completo em código, mas eu não consegui executar um build
 
 
 
-teste
+
+https://github.com/user-attachments/assets/6e107d7f-71f4-4081-bdbd-cd4619fa0079
+
+
