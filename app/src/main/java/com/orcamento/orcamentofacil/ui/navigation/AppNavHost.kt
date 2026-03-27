@@ -8,7 +8,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import com.orcamento.orcamentofacil.data.local.AppContainer
+import com.orcamento.core_model.AppContainer
 import com.orcamento.orcamentofacil.ui.screens.ExpenseFormScreen
 import com.orcamento.orcamentofacil.ui.screens.HistoryScreen
 import com.orcamento.orcamentofacil.ui.screens.HomeScreen

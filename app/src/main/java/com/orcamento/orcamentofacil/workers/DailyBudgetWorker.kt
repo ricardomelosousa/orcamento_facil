@@ -5,9 +5,6 @@ import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.orcamento.orcamentofacil.data.local.AppDatabase
 import com.orcamento.orcamentofacil.notifications.BudgetNotifier
-import java.text.NumberFormat
-import java.time.LocalDate
-import java.util.Locale
 
 class DailyBudgetWorker(
     appContext: Context,

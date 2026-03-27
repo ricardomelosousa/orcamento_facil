@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <color name="ic_orca_background">#F8F6F6</color>
-    <string name="app_name">Orçamento Fácil</string>
-    <style name="Theme.OrcamentoFacil" parent="Theme.Material3.DayNight.NoActionBar">
-        <item name="android:statusBarColor">@android:color/transparent</item>
-        <item name="android:navigationBarColor">@android:color/black</item>
-    </style>
-</resources>

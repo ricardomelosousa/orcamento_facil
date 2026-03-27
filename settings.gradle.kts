@@ -16,3 +16,6 @@ dependencyResolutionManagement {
 
 rootProject.name = "orcamento_facil"
 include(":app")
+include(":orcamentofacilwatch")
+
+include(":core-model")
