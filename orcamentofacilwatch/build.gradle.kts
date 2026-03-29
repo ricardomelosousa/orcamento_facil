@@ -2,6 +2,8 @@ plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
     id("org.jetbrains.kotlin.plugin.compose")
+    kotlin("plugin.serialization") version "1.9.22" // use sua versão Kotlin
+
 }
 
 android {
@@ -54,10 +56,19 @@ dependencies {
     implementation("androidx.navigation:navigation-compose:2.9.7")
     implementation("androidx.compose.runtime:runtime:1.10.5")
     implementation("androidx.room3:room3-runtime:3.0.0-alpha02")
+    implementation("androidx.databinding:compiler:3.2.0-alpha11")
     androidTestImplementation(platform("androidx.compose:compose-bom:2024.09.00"))
     androidTestImplementation("androidx.compose.ui:ui-test-junit4")
     debugImplementation("androidx.compose.ui:ui-tooling")
     debugImplementation("androidx.compose.ui:ui-test-manifest")
     implementation(project(":core-model"))
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.7.3")
+    implementation("com.google.guava:listenablefuture:9999.0-empty-to-avoid-conflict-with-guava")
+    // 1. Resolve o conflito de duplicata com a versão "vazia" oficial do Google
+    implementation("com.google.guava:listenablefuture:9999.0-empty-to-avoid-conflict-with-guava")
 
+    // 2. Garante que o Guava (que contém a classe ListenableFuture) esteja presente
+    // Use a versão "android" do Guava, que é mais leve que a "jre"
+    implementation("com.google.guava:guava:31.1-android")
 }

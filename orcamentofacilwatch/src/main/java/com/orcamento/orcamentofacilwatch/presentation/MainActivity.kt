@@ -30,9 +30,12 @@ import androidx.wear.compose.material3.lazy.transformedHeight
 import androidx.wear.compose.ui.tooling.preview.WearPreviewDevices
 import androidx.wear.compose.ui.tooling.preview.WearPreviewFontScales
 import com.orcamento.orcamentofacilwatch.R
+import com.orcamento.orcamentofacilwatch.presentation.data.model.WearDataLayerClient
 import com.orcamento.orcamentofacilwatch.presentation.navigation.WearAppNavHost
+import com.orcamento.orcamentofacilwatch.presentation.repo.WearBudgetRepositoryImpl
 import com.orcamento.orcamentofacilwatch.presentation.theme.Orcamento_facilTheme
 import com.orcamento.orcamentofacilwatch.presentation.ui.ViewModel.WearHomeViewModel
+import com.orcamento.orcamentofacilwatch.presentation.ui.ViewModel.WearViewModelFactory
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -56,17 +59,43 @@ class MainActivity : ComponentActivity() {
 //            )
 //        }
 
+//        setContent {
+//            val app = application as OrcamentoFacilWatchApp
+//            val wearHomeViewModel = remember {
+//                WearHomeViewModel(app.container.wearBudgetRepository)
+//            }
+//
+//            WearAppNavHost(
+//                wearHomeViewModel = wearHomeViewModel
+//            )
+//        }
+
+
         setContent {
-            val app = application as OrcamentoFacilWatchApp
-            val wearHomeViewModel = remember {
-                WearHomeViewModel(app.container.wearBudgetRepository)
+            val context = applicationContext
+
+            // 🔥 Data Layer Client
+            val dataLayerClient = remember {
+                WearDataLayerClient(context)
             }
 
+            // 🔥 Repository do Wear
+            val repository = remember {
+                WearBudgetRepositoryImpl(dataLayerClient)
+            }
+
+            // 🔥 Factory para ViewModels
+            val factory = remember {
+                WearViewModelFactory(repository)
+            }
+
+            // 🔥 Navegação do app
             WearAppNavHost(
-                wearHomeViewModel = wearHomeViewModel
+                viewModelFactory = factory,
+                openHistory = openHistory,
+                notificationPeriodId = periodId
             )
         }
-
 
     }
 }

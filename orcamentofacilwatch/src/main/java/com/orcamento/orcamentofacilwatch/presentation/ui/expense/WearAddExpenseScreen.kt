@@ -7,6 +7,7 @@ import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
 import com.orcamento.orcamentofacilwatch.presentation.domain.WearExpenseType
 import com.orcamento.orcamentofacilwatch.presentation.ui.ViewModel.WearAddExpenseViewModel
 import androidx.wear.compose.material3.Text
+
 @Composable
 fun WearAddExpenseScreen(
     onBack: () -> Unit,
@@ -16,12 +17,12 @@ fun WearAddExpenseScreen(
 
     ScalingLazyColumn {
         item {
-            androidx.wear.compose.material3.Text("Novo gasto")
+            Text("Novo gasto")
         }
 
         item {
             androidx.wear.compose.material3.Button(onClick = { viewModel.loadTypes() }) {
-                androidx.wear.compose.material3.Text("Carregar tipos")
+                Text("Carregar tipos")
             }
         }
 
@@ -30,19 +31,19 @@ fun WearAddExpenseScreen(
             androidx.wear.compose.material3.Button(onClick = {
                 viewModel.selectType(type.id)
             }) {
-                androidx.wear.compose.material3.Text(type.name)
+                Text(type.name)
             }
         }
 
         item {
             androidx.wear.compose.material3.Button(onClick = { viewModel.saveExampleExpense() }) {
-                androidx.wear.compose.material3.Text("Salvar exemplo")
+                Text("Salvar exemplo")
             }
         }
 
         item {
             androidx.wear.compose.material3.CompactButton(onClick = onBack) {
-                androidx.wear.compose.material3.Text("Voltar")
+                Text("Voltar")
             }
         }
     }

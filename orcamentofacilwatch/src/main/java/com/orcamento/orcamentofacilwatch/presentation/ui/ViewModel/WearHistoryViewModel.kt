@@ -3,10 +3,11 @@ package com.orcamento.orcamentofacilwatch.presentation.ui.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.orcamento.orcamentofacilwatch.presentation.domain.WearBudgetRepository
 import com.orcamento.orcamentofacilwatch.presentation.domain.WearExpenseItem
+import com.orcamento.orcamentofacilwatch.presentation.repo.WearBudgetRepositoryImpl
 import kotlinx.coroutines.launch
 
 class WearHistoryViewModel(
-    private val repository: WearBudgetRepository
+    private val repository: WearBudgetRepositoryImpl
 ) : androidx.lifecycle.ViewModel() {
 
     private val _items = kotlinx.coroutines.flow.MutableStateFlow<List<WearExpenseItem>>(emptyList())

@@ -1,22 +1,28 @@
 package com.orcamento.orcamentofacil.workers
 
+import android.Manifest
 import android.content.Context
+import androidx.annotation.RequiresPermission
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.orcamento.orcamentofacil.data.local.AppDatabase
 import com.orcamento.orcamentofacil.notifications.BudgetNotifier
+import java.text.NumberFormat
+import java.time.LocalDate
+import java.util.Locale
 
 class DailyBudgetWorker(
     appContext: Context,
     workerParams: WorkerParameters
 ) : CoroutineWorker(appContext, workerParams) {
 
+    @RequiresPermission(Manifest.permission.POST_NOTIFICATIONS)
     override suspend fun doWork(): Result {
 
         val db = AppDatabase.getDatabase(applicationContext)
         val dao = db.budgetDao()
 
-        val today = java.time.LocalDate.now().toString()
+        val today = LocalDate.now().toString()
 
         val currentPeriods = dao.findCurrentPeriod(today)
 
@@ -26,7 +32,7 @@ class DailyBudgetWorker(
                     val spent = dao.getSpentNow(currentPeriod.id)
                     val remaining = currentPeriod.totalLimit - spent
                     val temp = dao.getTemplate(currentPeriod.templateId)
-                    val brl = java.text.NumberFormat.getCurrencyInstance(java.util.Locale("pt", "BR"))
+                    val brl = NumberFormat.getCurrencyInstance(Locale("pt", "BR"))
 
                     BudgetNotifier.showNotification(
                         context = applicationContext,

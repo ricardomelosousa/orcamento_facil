@@ -6,6 +6,7 @@ import com.orcamento.orcamentofacil.domain.BudgetRepository
 
 
 class AppContainer(context: Context) {
+
     private val database = Room.databaseBuilder(
         context,
         AppDatabase::class.java,

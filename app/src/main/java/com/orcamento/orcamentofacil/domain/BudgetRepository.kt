@@ -41,6 +41,7 @@ class BudgetRepository(private val dao: BudgetDao) {
          val spent = dao.observePeriodSpent(periodId).first()
         return spent
     }
+
     fun observePeriodDetails(periodId: Long) = dao.observePeriodDetails(periodId)
 
     suspend fun getTemplateById(templateId: Long) = dao.getTemplate(templateId)
@@ -181,5 +182,10 @@ class BudgetRepository(private val dao: BudgetDao) {
         return dao.observeTemplates().map { templates ->
             templates.firstOrNull { it.template.id == templateId }?.types.orEmpty()
         }
+    }
+
+   suspend fun findCurrentPeriod(today: String):  List<BudgetPeriodEntity> {
+        val periods = dao.getPeriodsContainingDate(today)
+       return periods;
     }
 }

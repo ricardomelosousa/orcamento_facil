@@ -20,7 +20,6 @@ import androidx.wear.compose.material3.Button
 import androidx.wear.compose.material3.CompactButton
 import androidx.wear.compose.material3.MaterialTheme
 import androidx.wear.compose.material3.Text
-import com.orcamento.orcamentofacilwatch.presentation.domain.WearPeriodSummary
 import com.orcamento.orcamentofacilwatch.presentation.ui.ViewModel.WearHomeViewModel
 import java.text.NumberFormat
 import java.util.Locale
@@ -90,5 +89,5 @@ fun WearHomeScreen(
 sealed interface WearHomeUiState {
     data object Loading : WearHomeUiState
     data object Empty : WearHomeUiState
-    data class Success(val summary: WearPeriodSummary) : WearHomeUiState
+    data class Success(val summary: com.orcamento.orcamentofacilwatch.presentation.data.model.WearPeriodSummary) : WearHomeUiState
 }

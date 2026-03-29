@@ -4,13 +4,14 @@ import android.content.Context
 import com.orcamento.orcamentofacilwatch.presentation.domain.WearBudgetRepository
 import com.orcamento.orcamentofacilwatch.presentation.domain.WearExpenseItem
 import com.orcamento.orcamentofacilwatch.presentation.domain.WearPeriodSummary
+import com.orcamento.orcamentofacilwatch.presentation.repo.WearBudgetRepositoryImpl
 
 
 class WearContainer(
     context: Context
 ) {
-    val wearBudgetRepository: WearBudgetRepository =
-        WearBudgetRepositoryImpl(context)
+//    val wearBudgetRepository: WearBudgetRepositoryImpl =
+//        WearBudgetRepositoryImpl(context)
 }
 
 
@@ -19,7 +20,7 @@ interface WearBudgetRepository {
     suspend fun getRecentHistory(periodId: Long): List<WearExpenseItem>
 }
 
-class WearBudgetRepositoryImpl(
+class WearBudgetRepositoryImpl2(
     private val context: Context
 ) : WearBudgetRepository {
 
