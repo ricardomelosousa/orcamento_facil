@@ -3,6 +3,7 @@ plugins {
     id("org.jetbrains.kotlin.android")
     id("com.google.devtools.ksp")
     id("org.jetbrains.kotlin.plugin.compose")
+    kotlin("plugin.serialization") version "1.9.22"
 }
 
 android {
@@ -52,6 +53,7 @@ android {
 }
 
 dependencies {
+    implementation("com.google.android.gms:play-services-wearable:19.0.0")
     val composeBom = platform("androidx.compose:compose-bom:2025.02.00")
 
     implementation("androidx.core:core-ktx:1.15.0")
@@ -86,4 +88,14 @@ dependencies {
     // Suporte ao Compose Material 3
     implementation("androidx.compose.material3:material3:1.2.1")
     implementation("androidx.work:work-runtime-ktx:2.9.0")
+    implementation("com.google.guava:listenablefuture:9999.0-empty-to-avoid-conflict-with-guava")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.7.3")
+
+    // 1. Resolve o conflito de duplicata com a versão "vazia" oficial do Google
+    implementation("com.google.guava:listenablefuture:9999.0-empty-to-avoid-conflict-with-guava")
+
+    // 2. Garante que o Guava (que contém a classe ListenableFuture) esteja presente
+    // Use a versão "android" do Guava, que é mais leve que a "jre"
+    implementation("com.google.guava:guava:31.1-android")
 }

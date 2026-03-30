@@ -66,4 +66,14 @@ interface BudgetDao {
     @Transaction
     @Query("SELECT * FROM budget_periods WHERE templateId = :templateId ORDER BY startDate DESC")
     fun observePeriodsByTemplate(templateId: Long): Flow<List<BudgetPeriodEntity>>
+
+
+    @Query("SELECT * FROM budget_periods WHERE startDate <= :today AND endDate >= :today ")
+    suspend fun findCurrentPeriod(today: String): List<BudgetPeriodEntity>?
+
+    @Query("SELECT * FROM expense_entries  WHERE periodId = :periodId ")
+    suspend fun getExpensesByPeriodWork(periodId: Long): List<ExpenseEntryEntity>
+
+    @Query("SELECT COALESCE(SUM(amount), 0) FROM expense_entries WHERE periodId = :periodId")
+    suspend fun getSpentNow(periodId: Long): Double
 }

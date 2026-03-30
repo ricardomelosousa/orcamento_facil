@@ -53,7 +53,7 @@ fun ExpenseFormScreen(viewModel: ExpenseFormViewModel, onBack: () -> Unit) {
                         context = context,
                         id = 1001,
                         title = "Gasto lançado com sucesso",
-                        message = "Valor restante no período: ${brl.format(event.remaining)}"
+                        message = "${brl.format(templates[0].template.totalLimit)} Restante : ${brl.format(event.remaining)}"
                     )
                 }
             }

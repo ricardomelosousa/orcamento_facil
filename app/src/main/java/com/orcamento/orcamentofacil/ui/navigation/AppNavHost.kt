@@ -32,8 +32,17 @@ object Routes {
 }
 
 @Composable
-fun AppNavHost(appContainer: AppContainer) {
+fun AppNavHost(appContainer: AppContainer, openHistory: Boolean, notificationPeriodId: Long) {
     val navController = rememberNavController()
+
+    LaunchedEffect(openHistory, notificationPeriodId) {
+        if (openHistory && notificationPeriodId > 0) {
+            navController.navigate(Routes.HISTORY_FORM){
+                launchSingleTop = true
+            }
+        }
+    }
+
 
     NavHost(navController = navController, startDestination = Routes.HOME) {
         composable(Routes.HOME) {

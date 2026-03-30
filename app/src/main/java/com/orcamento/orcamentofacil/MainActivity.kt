@@ -1,32 +1,24 @@
 package com.orcamento.orcamentofacil
 
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
-import androidx.room.util.TableInfo
+import androidx.work.ExistingPeriodicWorkPolicy
+import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.PeriodicWorkRequestBuilder
+import androidx.work.WorkManager
 import com.orcamento.orcamentofacil.notifications.NotificationHelper
 import com.orcamento.orcamentofacil.ui.navigation.AppNavHost
-import java.util.jar.Manifest
+import com.orcamento.orcamentofacil.workers.DailyBudgetWorker
+import java.util.concurrent.TimeUnit
 
 class MainActivity : ComponentActivity() {
 
@@ -39,12 +31,41 @@ class MainActivity : ComponentActivity() {
         NotificationHelper.createChannel(this)
         requestNotificationPermissionIfNeeded()
 
+        //Para debug remova o !
+        if (!BuildConfig.DEBUG) {
+            val request2 = OneTimeWorkRequestBuilder<DailyBudgetWorker>().build()
+            WorkManager.getInstance(this).enqueue(request2)
+            Log.d("WORK_DEBUG", "Rodando worker IMEDIATO (DEBUG)")
+        } else {
+            val now = java.time.LocalDateTime.now()
+            val nextRun = now.withHour(8).withMinute(0).withSecond(0).withNano(0)
+                .let { if (it.isBefore(now)) it.plusDays(1) else it }
+
+            val initialDelay = java.time.Duration.between(now, nextRun).toMillis()
+
+            val request = PeriodicWorkRequestBuilder<DailyBudgetWorker>(
+                1, TimeUnit.DAYS
+            )
+                .setInitialDelay(initialDelay, TimeUnit.MILLISECONDS)
+                .build()
+
+            WorkManager.getInstance(this).enqueueUniquePeriodicWork(
+                "daily_budget_notification",
+                ExistingPeriodicWorkPolicy.UPDATE,
+                request
+            )
+        }
         setContent {
             Surface(color = MaterialTheme.colorScheme.background) {
-                AppNavHost(appContainer = (application as OrcamentoFacilApp).container)
-                //Teste()
+                AppNavHost(appContainer = (application as OrcamentoFacilApp).container,
+                    openHistory = intent?.getBooleanExtra("openHistory", false) ?: false,
+                    notificationPeriodId = intent?.getLongExtra("periodId", -1L) ?: -1L)
             }
         }
+    }
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
     }
     private fun requestNotificationPermissionIfNeeded() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
@@ -57,16 +78,8 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
-//    @Preview(showBackground = true)
-//    @Composable
-//    fun Teste(){
-//        Column {
-//            Box(modifier =  Modifier.height(30.dp).background(Color.Blue).width(50.dp)){
-//                Image(painter = painterResource(id = R.drawable.orca_facil),
-//                    contentDescription = "Imagem do produto")
-//            }
-//        }
-//    }
+}
 
-
+object BuildConfig {
+    const val DEBUG = true
 }
